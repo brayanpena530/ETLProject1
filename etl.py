@@ -17,7 +17,6 @@ def main():
         password=conf["password"]
     )
     cur = conn.cursor()
-    conn.set_session(autocommit=True)
 
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
@@ -80,15 +79,15 @@ def process_log_file(cur, filepath):
     t = pd.to_datetime(df["ts"], unit="ms").tolist()
     
     # insert time data records
-    time_data = [t.dt.hour, t.dt.day, t.dt.week, t.dt.month, t.dt.year, t.dt.weekday]
+    time_data = [t.dt.hour, t.dt.day, t.dt.week, t.dt.month, t.dt.year, t.dt.weekday, t]
     #column_labels = ["hour","day","week of the year", "month", "year", "weekday"]
-    time_df = {"hour":time_data[0], "day":time_data[1], "week of the year":time_data[2], "month of the year":time_data[3],"year":time_data[4],"weekday":time_data[5]}
+    time_df = {"hour":time_data[0], "day":time_data[1], "week of the year":time_data[2], "month of the year":time_data[3],"year":time_data[4],"weekday":time_data[5], "start_time": time_data[6]}
 
     for i, row in time_df.iterrows():
         cur.execute(time_table_insert, list(row))
 
-    # load user table
-    user_df = df[["userId","firstName","lastName","gender","level"]].values[0].tolist()
+    # load user data
+    user_df = df[["userId","firstName","lastName","gender","level"]]
 
     # insert user records
     for i, row in user_df.iterrows():
