@@ -4,11 +4,11 @@ This python file contains all the sql staments that are needed for the ETL pipel
 """
 
 # DROP TABLES
-songplay_table_drop = "DROP TABLE IF EXISTS songplay;"
-user_table_drop = "DROP TABLE IF EXISTS user_table;"
-song_table_drop = "DROP TABLE IF EXISTS song;"
-artist_table_drop = "DROP TABLE IF EXISTS artist;"
-time_table_drop = "DROP TABLE IF EXISTS time;"
+songplay_table_drop = "DROP TABLE IF EXISTS songplay"
+user_table_drop = "DROP TABLE IF EXISTS user_table"
+song_table_drop = "DROP TABLE IF EXISTS song"
+artist_table_drop = "DROP TABLE IF EXISTS artist"
+time_table_drop = "DROP TABLE IF EXISTS time"
 
 
 #Create tables 
@@ -41,7 +41,7 @@ user_table_create = (
         last_name varchar, 
         gender varchar, 
         level varchar
-    );"
+    )
 """
 )
 
@@ -134,7 +134,7 @@ song_select = (
 select song_id, song.artist_id 
 from song 
 join artist on song.artist_id = artist.artist_id 
-where title=%s and name=%s;
+where title=%s and name=%s
 """
 )
 
