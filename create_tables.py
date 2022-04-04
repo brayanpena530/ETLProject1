@@ -4,6 +4,7 @@ from configuration import conf
 
 def connect_to_database():
     # connect to sparkify database
+    # conf variable can be found in configuration.py file, this contains the configuration details for the database
     conn = psycopg2.connect(
         host=conf["host"],
         database=conf["database"],
@@ -35,8 +36,6 @@ def create_tables(cur, conn):
 
 def main():
     """
-    - Drops (if exists) and Creates the sparkify database. 
-    
     - Establishes connection with the sparkify database and gets
     cursor to it.  
     

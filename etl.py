@@ -5,11 +5,20 @@ import glob
 from sql_queries import *
 import pandas as pd
 
-#Connects to the database. Inputs are in the configurations.py file in the conf variable
-
-
-
 def main():
+    """
+    Description: this is the main method where the connection of to the database is made and the other methods are called from this point.
+    First the connection is started and then the song data is processed followed by the log data. After that the connection to the db is closed. 
+    The configurations to connect to the database is taken from the configuration.py file, where the variable conf hold the necessary values
+
+    Arguments: 
+        None
+    
+    Returns:
+        None
+    """
+
+    #Connecting to the database, conf variable taken from file configuration.py
     conn = psycopg2.connect(
         host=conf["host"],
         database=conf["database"],
@@ -18,15 +27,26 @@ def main():
     )
     cur = conn.cursor()
 
-
+    #processing data
     process_data(cur, conn, filepath='data/data/song_data', func=process_song_file)
     process_data(cur, conn, filepath='data/data/log_data', func=process_log_file)
 
+    #closing the database connection
     cur.close()
     conn.close()
 
 
 def get_files(filepath):
+    """
+     Description: This function is responsible for obtaining all the files that are found under a given directory
+
+    Arguments:
+        filepath: log data or song data file path.
+        
+    Returns:
+        all_files: list of files 
+    
+    """
     all_files = []
     for root, dirs, files in os.walk(filepath):
         files = glob.glob(os.path.join(root,'*.json'))
@@ -37,30 +57,46 @@ def get_files(filepath):
 
 
 def process_song_file(cur, filepath):
+    """
+    Description: This function is responsible for processing the song data and then execiting the ingestion process 
+    for each file and saves it in the database 
+
+    Arguments:
+        cur: the cursor object 
+        filepath: song data filepath 
+
+    Returns:
+        None
+    """
     # open song file
     df =  pd.read_json(filepath, lines=True)
 
     song_data = df[["song_id","title","artist_id","year","duration"]].values[0].tolist()
 
-    #check if song id is already in the database
-    cur.execute(song_check, [song_data[0]])
-    result = cur.fetchone()
-
     # insert song record
-    if result is None: 
-        cur.execute(song_table_insert, song_data)
+    cur.execute(song_table_insert, song_data)
     
-    # insert artist record and checking if id is already in the database
+    # insert artist record
     #artist ID, name, location, latitude, and longitude
     artist_data = df[["artist_id","artist_name","artist_location","artist_latitude","artist_longitude"]].values[0].tolist()
-    cur.execute(artist_check,[artist_data[0]])
-    result=cur.fetchone()
-
-    if result is None:
-        cur.execute(artist_table_insert, artist_data)
+    cur.execute(artist_table_insert, artist_data)
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    Description: This function is responsible for listing the files in a directory,
+    and then executing the ingest process for each file according to the function
+    that performs the transformation to save it to the database.
+
+    Arguments:
+        cur: the cursor object.
+        conn: connection to the database.
+        filepath: log data or song data file path.
+        func: function that transforms the data and inserts it into the database.
+
+    Returns:
+        None
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -80,6 +116,18 @@ def process_data(cur, conn, filepath, func):
 
 
 def process_log_file(cur, filepath):
+    """
+    Description: This function is responsible for processing the log data and then execiting the ingestion process 
+    for each file and saves it in the database 
+
+    Arguments:
+        cur: the cursor object 
+        filepath: log data filepath 
+
+    Returns:
+        None
+    """
+
     # open log file
     df =pd.read_json(filepath, lines=True)
 
@@ -102,11 +150,7 @@ def process_log_file(cur, filepath):
 
     # insert user records
     for i, row in user_df.iterrows():
-        #check if user is already in the db
-        cur.execute(user_check, [row.userId])
-        result = cur.fetchone()
-        if result is None:
-            cur.execute(user_table_insert, row)
+        cur.execute(user_table_insert, row)
 
     # insert songplay records
     for index, row in df.iterrows():
