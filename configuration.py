@@ -2,6 +2,6 @@
 conf={
     "host":"localhost",
     "database":"sparkifydb",
-    "user":"",
-    "password":""
+    "user":"postgres",
+    "password":"0530"
 }
